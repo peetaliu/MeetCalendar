@@ -11,6 +11,34 @@ app.use(morgan('tiny'));
 
 function getResults(body){
     const $ = cheerio.load(body);
+    const meets = $('[id^=post-]');   
+    let meetArr = [];
+
+    meets.each((index, element) => {
+        const result = $(element);
+        const meetName = result.find('.tribe-events-list-event-title').text().trim();
+        const meetDate = result.find('.tribe-event-schedule-details').text().trim();
+        const meetCost = result.find('.tribe-events-event-cost').text().trim();
+        const meetVenue = result.find('.tribe-events-venue-details').text();
+        const meetVenueF = meetVenue.substr(0, meetVenue.indexOf(',')).trim();
+        const meetStreet = result.find('.tribe-street-address').text().trim();
+        const meetCity = result.find('.tribe-locality').text().trim();
+        const meetPost = result.find('.tribe-postal-code').text().trim();
+        const meetSummary = result.find('.tribe-events-list-event-description').text().trim();
+        console.log(meetName, meetDate, meetCost, meetVenueF, meetStreet, meetCity, meetPost, meetSummary);
+        meetArr.push({
+            meetName,
+            meetDate,
+            meetCost,
+            meetVenueF,
+            meetStreet,
+            meetCity,
+            meetPost,
+            meetSummary
+        });
+    });
+
+    return meetArr;
 }
 
 app.get('/', (req, res) => {
