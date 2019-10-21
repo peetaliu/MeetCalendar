@@ -9,6 +9,11 @@ const app = express();
 app.use(cors());
 app.use(morgan('tiny'));
 
+function formatVenue(venueText){
+    const formatted = venueText.substring(0, venueText.indexOf(','));
+    return formatted;
+}
+
 function getResults(body){
     const $ = cheerio.load(body);
     const meets = $('[id^=post-]');   
@@ -16,26 +21,18 @@ function getResults(body){
 
     meets.each((index, element) => {
         const result = $(element);
-        const meetName = result.find('.tribe-events-list-event-title').text().trim();
-        const meetDate = result.find('.tribe-event-schedule-details').text().trim();
-        const meetCost = result.find('.tribe-events-event-cost').text().trim();
-        const meetVenue = result.find('.tribe-events-venue-details').text();
-        const meetVenueF = meetVenue.substr(0, meetVenue.indexOf(',')).trim();
-        const meetStreet = result.find('.tribe-street-address').text().trim();
-        const meetCity = result.find('.tribe-locality').text().trim();
-        const meetPost = result.find('.tribe-postal-code').text().trim();
-        const meetSummary = result.find('.tribe-events-list-event-description').text().trim();
-        console.log(meetName, meetDate, meetCost, meetVenueF, meetStreet, meetCity, meetPost, meetSummary);
-        meetArr.push({
-            meetName,
-            meetDate,
-            meetCost,
-            meetVenueF,
-            meetStreet,
-            meetCity,
-            meetPost,
-            meetSummary
-        });
+        const meetInfo = {
+            name : result.find('.tribe-events-list-event-title').text().trim(),
+            date : result.find('.tribe-event-schedule-details').text().trim(),
+            cost : result.find('.tribe-events-event-cost').text().trim(),
+            venue : formatVenue(result.find('.tribe-events-venue-details').text().trim()),
+            street : result.find('.tribe-street-address').text().trim(),
+            city : result.find('.tribe-locality').text().trim(),
+            post : result.find('.tribe-postal-code').text().trim(),
+            summary : result.find('.tribe-events-list-event-description').text().trim()
+        }
+        console.log(meetInfo.name, meetInfo.date, meetInfo.venue);
+        meetArr.push(meetInfo);
     });
 
     return meetArr;
